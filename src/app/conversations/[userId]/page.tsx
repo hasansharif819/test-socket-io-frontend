@@ -180,7 +180,7 @@ export default function ConversationsPage() {
             return (
               <li
                 key={conv.id}
-                className="bg-white shadow rounded p-4 flex gap-4 items-start hover:bg-gray-50 transition"
+                className="bg-white shadow rounded p-4 flex gap-4 items-start hover:bg-gray-50 transition cursor-pointer"
               >
                 {/* Profile Picture */}
                 <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center text-xl font-semibold text-white shrink-0">
