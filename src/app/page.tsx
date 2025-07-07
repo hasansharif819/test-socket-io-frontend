@@ -1,94 +1,176 @@
+// "use client";
+
+// export default function LandingPage() {
+//   return (
+//     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 px-4">
+//       <div className="max-w-6xl w-full grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+//         {/* Left Content */}
+//         <div className="space-y-6">
+//           <h1 className="text-4xl sm:text-5xl font-extrabold text-blue-700">
+//             Welcome to <span className="text-purple-600">ChatHive</span>
+//           </h1>
+//           <p className="text-lg text-gray-600">
+//             Stay connected with your friends, team, or community — all in one
+//             powerful and simple chat experience.
+//           </p>
+//           <ul className="space-y-2 text-gray-700 font-medium">
+//             <li>✅ Real-time messaging</li>
+//             <li>✅ Audio/Video calls</li>
+//             <li>✅ Group chats & rooms</li>
+//             <li>✅ Secure & Fast</li>
+//           </ul>
+//         </div>
+
+//         {/* Right Form */}
+//         <div className="bg-white rounded-xl shadow-xl p-8 w-full max-w-md border border-gray-200">
+//           <h2 className="text-2xl font-semibold text-center text-gray-800 mb-6">
+//             Sign in to Chat
+//           </h2>
+//           <form className="space-y-4">
+//             <input
+//               type="email"
+//               placeholder="Email"
+//               className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none"
+//             />
+//             <input
+//               type="password"
+//               placeholder="Password"
+//               className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none"
+//             />
+//             <button
+//               type="submit"
+//               className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
+//             >
+//               Log In
+//             </button>
+//           </form>
+//           <p className="text-sm text-center text-gray-500 mt-6">
+//             Don’t have an account?{" "}
+//             <a
+//               href="/register"
+//               className="text-blue-600 hover:underline font-medium"
+//             >
+//               Sign up
+//             </a>
+//           </p>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { connectSocket } from "@/lib/socket";
+import { useState } from "react";
+import { FaRegThumbsUp, FaRegCommentDots, FaShare } from "react-icons/fa";
 
-interface Message {
+interface Post {
   id: string;
-  content: string;
-  sender: {
-    id: string;
+  user: {
     name: string;
+    avatar: string;
   };
-  createdAt: string;
+  content?: string;
+  image?: string;
 }
 
-export default function Home() {
-  const socketRef = useRef<any>(null);
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState("");
+const dummyPosts: Post[] = [
+  {
+    id: "1",
+    user: {
+      name: "Sharif Hasan",
+      avatar: "https://i.pravatar.cc/150?img=3",
+    },
+    content: "Just enjoying the weather today 🌤️",
+  },
+  {
+    id: "2",
+    user: {
+      name: "Emily Watson",
+      avatar: "https://i.pravatar.cc/150?img=7",
+    },
+    image: "https://images.pexels.com/photos/1133957/pexels-photo-1133957.jpeg",
+  },
+  {
+    id: "3",
+    user: {
+      name: "John Doe",
+      avatar: "https://i.pravatar.cc/150?img=10",
+    },
+    content: "Weekend hiking adventure! 🥾🌲",
+    image: "https://images.pexels.com/photos/1076758/pexels-photo-1076758.jpeg",
+  },
+  {
+    id: "4",
+    user: {
+      name: "Reazul Islam",
+      avatar: "https://i.pravatar.cc/150?img=27",
+    },
+    content: "Weekend hiking adventure! 🥾🌲",
+    image: "https://images.pexels.com/photos/302743/pexels-photo-302743.jpeg",
+  },
+];
 
-  // Example static IDs — replace with real ones dynamically
-  const conversationId = "0f6059a1-47a4-4639-bef1-1e119e96981b";
-  const senderId = "e3d531f6-4803-4ac3-b029-932806d8f596";
+export default function HomePage() {
+  const [likes, setLikes] = useState<Record<string, number>>({});
 
-  useEffect(() => {
-    const socket = connectSocket();
-    socketRef.current = socket;
-
-    socket.emit("joinRoom", { conversationId });
-    socket.emit("getMessages", { conversationId, page: 1, limit: 30 });
-
-    socket.on("messagesFetched", (res) => {
-      console.log("📥 Messages fetched:", res);
-
-      const incomingMessages = Array.isArray(res)
-        ? res
-        : Array.isArray(res?.data)
-        ? res.data
-        : [];
-
-      setMessages(incomingMessages);
-    });
-
-    socket.on("receiveMessage", (message: Message) => {
-      setMessages((prev) => [...prev, message]);
-    });
-
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
-
-  const handleSend = () => {
-    if (!input.trim()) return;
-
-    socketRef.current.emit("sendMessage", {
-      conversationId,
-      senderId,
-      content: input,
-      messageType: "TEXT",
-    });
-
-    setInput("");
+  const handleLike = (postId: string) => {
+    setLikes((prev) => ({
+      ...prev,
+      [postId]: (prev[postId] || 0) + 1,
+    }));
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">Chat</h1>
+    <div className="min-h-screen bg-gray-100 py-10 px-4">
+      <div className="max-w-3xl mx-auto">
+        <h1 className="text-3xl font-bold text-blue-700 mb-8 text-center">
+          👋 Welcome to ChatHive
+        </h1>
 
-      <div className="border h-96 overflow-y-scroll p-4 rounded bg-gray-100 mb-4">
-        {messages.map((msg) => (
-          <div key={msg.id} className="mb-2 text-black">
-            <strong>{msg.sender.name}</strong>: {msg.content}
-          </div>
-        ))}
-      </div>
+        <div className="space-y-6">
+          {dummyPosts.map((post) => (
+            <div key={post.id} className="bg-white rounded-xl shadow p-5">
+              <div className="flex items-center gap-3 mb-3">
+                <img
+                  src={post.user.avatar}
+                  alt={post.user.name}
+                  className="w-10 h-10 rounded-full"
+                />
+                <span className="font-semibold text-gray-800">
+                  {post.user.name}
+                </span>
+              </div>
 
-      <div className="flex gap-2">
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          className="flex-1 border px-4 py-2 rounded"
-          placeholder="Type a message"
-        />
-        <button
-          onClick={handleSend}
-          className="bg-blue-600 text-white px-4 py-2 rounded"
-        >
-          Send
-        </button>
+              {post.content && (
+                <p className="text-gray-700 text-base mb-3">{post.content}</p>
+              )}
+
+              {post.image && (
+                <img
+                  src={post.image}
+                  alt="Post"
+                  className="w-full h-auto rounded-lg mb-3"
+                />
+              )}
+
+              <div className="flex justify-between items-center text-gray-600 mt-2 pt-2 border-t">
+                <button
+                  className="flex items-center gap-1 hover:text-blue-600 transition"
+                  onClick={() => handleLike(post.id)}
+                >
+                  <FaRegThumbsUp /> Like ({likes[post.id] || 0})
+                </button>
+                <button className="flex items-center gap-1 hover:text-blue-600 transition">
+                  <FaRegCommentDots /> Comment
+                </button>
+                <button className="flex items-center gap-1 hover:text-blue-600 transition">
+                  <FaShare /> Share
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
