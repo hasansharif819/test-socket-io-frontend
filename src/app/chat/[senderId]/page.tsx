@@ -26,7 +26,8 @@ export default function ChatPage() {
   const [input, setInput] = useState("");
   const [receiver, setReceiver] = useState<null | Message["sender"]>(null);
 
-  const conversationId = "839d396a-0008-4675-8a3c-db1b648d9510";
+  // const conversationId = "839d396a-0008-4675-8a3c-db1b648d9510";
+  const conversationId = "0f6059a1-47a4-4639-bef1-1e119e96981b";
 
   useEffect(() => {
     const socket = connectSocket();
